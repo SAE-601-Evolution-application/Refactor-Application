@@ -2,7 +2,7 @@ package sae.semestre.six.treatment;
 
 import sae.semestre.six.patient.PatientHistory;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity

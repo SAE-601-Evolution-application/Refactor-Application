@@ -2,7 +2,7 @@ package sae.semestre.six.price;
 
 import sae.semestre.six.inventory.Inventory;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity

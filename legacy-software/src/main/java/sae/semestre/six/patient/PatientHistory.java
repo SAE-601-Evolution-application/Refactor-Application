@@ -6,7 +6,7 @@ import sae.semestre.six.medical.LabResult;
 import sae.semestre.six.prescription.Prescription;
 import sae.semestre.six.treatment.Treatment;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.*;
 
 @Entity

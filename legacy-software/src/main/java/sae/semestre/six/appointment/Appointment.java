@@ -5,7 +5,7 @@ import sae.semestre.six.patient.Patient;
 import sae.semestre.six.patient.PatientHistory;
 import sae.semestre.six.room.Room;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity

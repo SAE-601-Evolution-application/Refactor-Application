@@ -2,7 +2,7 @@ package sae.semestre.six.room;
 
 import sae.semestre.six.appointment.Appointment;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Set;
 import java.util.HashSet;
 

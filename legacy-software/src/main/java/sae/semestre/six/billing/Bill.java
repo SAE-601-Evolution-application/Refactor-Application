@@ -4,7 +4,7 @@ import sae.semestre.six.doctor.Doctor;
 import sae.semestre.six.patient.Patient;
 import sae.semestre.six.patient.PatientHistory;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 import java.util.Set;
 import java.util.HashSet;

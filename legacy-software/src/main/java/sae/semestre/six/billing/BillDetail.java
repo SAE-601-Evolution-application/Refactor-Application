@@ -1,6 +1,6 @@
 package sae.semestre.six.billing;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "bill_details")
