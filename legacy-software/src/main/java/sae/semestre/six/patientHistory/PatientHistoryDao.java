@@ -1,4 +1,4 @@
-package sae.semestre.six.patient;
+package sae.semestre.six.patientHistory;
 
 import sae.semestre.six.generic.GenericDao;
 

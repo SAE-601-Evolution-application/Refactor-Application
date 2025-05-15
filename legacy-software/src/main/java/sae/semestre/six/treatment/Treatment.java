@@ -1,6 +1,6 @@
 package sae.semestre.six.treatment;
 
-import sae.semestre.six.patient.PatientHistory;
+import sae.semestre.six.patientHistory.PatientHistory;
 
 import jakarta.persistence.*;
 import java.util.Date;

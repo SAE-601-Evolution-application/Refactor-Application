@@ -1,8 +1,9 @@
-package sae.semestre.six.patient;
+package sae.semestre.six.patientHistory;
 
 import sae.semestre.six.billing.Bill;
 import sae.semestre.six.appointment.Appointment;
 import sae.semestre.six.medical.LabResult;
+import sae.semestre.six.patient.Patient;
 import sae.semestre.six.prescription.Prescription;
 import sae.semestre.six.treatment.Treatment;
 

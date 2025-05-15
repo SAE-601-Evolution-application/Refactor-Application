@@ -2,7 +2,7 @@ package sae.semestre.six.appointment;
 
 import sae.semestre.six.doctor.Doctor;
 import sae.semestre.six.patient.Patient;
-import sae.semestre.six.patient.PatientHistory;
+import sae.semestre.six.patientHistory.PatientHistory;
 import sae.semestre.six.room.Room;
 
 import jakarta.persistence.*;

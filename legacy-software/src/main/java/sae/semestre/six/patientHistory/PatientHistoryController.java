@@ -1,4 +1,4 @@
-package sae.semestre.six.patient;
+package sae.semestre.six.patientHistory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

@@ -1,9 +1,10 @@
-package sae.semestre.six.patient;
+package sae.semestre.six.patientHistory;
 
 import sae.semestre.six.generic.AbstractHibernateDao;
 import org.springframework.stereotype.Repository;
 
 import jakarta.persistence.Query;
+
 import java.util.*;
 
 @Repository
