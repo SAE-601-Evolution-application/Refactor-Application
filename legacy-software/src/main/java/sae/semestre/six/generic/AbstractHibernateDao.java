@@ -2,10 +2,13 @@ package sae.semestre.six.generic;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
+
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
+@Transactional
 public abstract class AbstractHibernateDao<T, ID extends Serializable> implements GenericDao<T, ID> {
     
     private final Class<T> persistentClass;
