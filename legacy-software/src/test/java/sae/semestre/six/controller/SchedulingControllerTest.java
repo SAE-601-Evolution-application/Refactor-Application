@@ -23,7 +23,7 @@ public class SchedulingControllerTest {
     @Mock
     private DoctorDao doctorDao;
 
-    @Spy
+    @Mock
     private EmailService emailService = EmailService.getInstance();
 
     @InjectMocks
@@ -39,17 +39,20 @@ public class SchedulingControllerTest {
         Long doctorId = 1L;
         Long patientId = 2L;
         Date appointmentDate = createDate(2025, 5, 15, 10);
+        String subject = new String ("New Appointment Scheduled");
+        String body = new String ("You have a new appointment on " + appointmentDate);
 
         Doctor mockDoctor = new Doctor();
         mockDoctor.setEmail("doc@example.com");
 
         when(doctorDao.findById(doctorId)).thenReturn(mockDoctor);
         when(appointmentDao.findByDoctorId(doctorId)).thenReturn(Collections.emptyList());
+        doNothing().when(emailService).sendEmail(anyString(), anyString(), anyString());
 
         String result = schedulingController.scheduleAppointment(doctorId, patientId, appointmentDate);
 
         assertEquals("Appointment scheduled successfully", result);
-        verify(emailService).sendEmail(anyString(), anyString(), contains("2025"));
+        verify(emailService).sendEmail(mockDoctor.getEmail(), subject, body);
     }
 
     @Test

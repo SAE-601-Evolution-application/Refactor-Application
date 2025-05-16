@@ -18,10 +18,18 @@ public class SchedulingController {
     
     @Autowired
     private DoctorDao doctorDao;
-    
-    private final EmailService emailService = EmailService.getInstance();
-    
-    
+
+    private final EmailService emailService;
+
+    @Autowired
+    public SchedulingController(AppointmentDao appointmentDao, DoctorDao doctorDao, EmailService emailService) {
+        this.appointmentDao = appointmentDao;
+        this.doctorDao = doctorDao;
+        this.emailService = emailService;
+    }
+
+
+
     @PostMapping("/appointment")
     public String scheduleAppointment(
             @RequestParam Long doctorId,
