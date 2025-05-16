@@ -3,6 +3,8 @@ package sae.semestre.six.price;
 import sae.semestre.six.inventory.Inventory;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -24,7 +26,7 @@ public class PriceHistory {
     
     @Column(name = "change_date")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date changeDate = new Date();
+    private LocalDateTime changeDate = LocalDateTime.now();
     
     
     public Double getPriceIncrease() {

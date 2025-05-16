@@ -6,6 +6,8 @@ import sae.semestre.six.patientHistory.PatientHistory;
 import sae.semestre.six.room.Room;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -35,7 +37,7 @@ public class Appointment {
 
     @Column(name = "appointment_date", nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private Date appointmentDate;
+    private LocalDateTime appointmentDate;
 
 
     @Column(name = "status")
@@ -84,11 +86,11 @@ public class Appointment {
         this.doctor = doctor;
     }
 
-    public Date getAppointmentDate() {
+    public LocalDateTime getAppointmentDate() {
         return appointmentDate;
     }
 
-    public void setAppointmentDate(Date appointmentDate) {
+    public void setAppointmentDate(LocalDateTime appointmentDate) {
         this.appointmentDate = appointmentDate;
     }
 

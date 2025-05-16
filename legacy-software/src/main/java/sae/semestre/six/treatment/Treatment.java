@@ -3,6 +3,8 @@ package sae.semestre.six.treatment;
 import sae.semestre.six.patientHistory.PatientHistory;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -22,7 +24,7 @@ public class Treatment {
     
     @Column(name = "treatment_date")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date treatmentDate;
+    private LocalDateTime treatmentDate;
     
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
@@ -37,8 +39,8 @@ public class Treatment {
     public PatientHistory getPatientHistory() { return patientHistory; }
     public void setPatientHistory(PatientHistory patientHistory) { this.patientHistory = patientHistory; }
     
-    public Date getTreatmentDate() { return treatmentDate; }
-    public void setTreatmentDate(Date treatmentDate) { this.treatmentDate = treatmentDate; }
+    public LocalDateTime getTreatmentDate() { return treatmentDate; }
+    public void setTreatmentDate(LocalDateTime treatmentDate) { this.treatmentDate = treatmentDate; }
     
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }

@@ -3,6 +3,8 @@ package sae.semestre.six.prescription;
 import sae.semestre.six.patient.Patient;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -37,10 +39,10 @@ public class Prescription {
     
     
     @Column(name = "created_date")
-    private Date createdDate = new Date();
+    private LocalDateTime createdDate = LocalDateTime.now();
     
     @Column(name = "last_modified")
-    private Date lastModified = new Date();
+    private LocalDateTime lastModified = LocalDateTime.now();
     
     
     public Prescription() {}
@@ -100,7 +102,7 @@ public class Prescription {
     
     public void setBilled(Boolean billed) {
         isBilled = billed;
-        lastModified = new Date(); 
+        lastModified = LocalDateTime.now();
     }
     
     public Boolean getInventoryUpdated() {
@@ -111,19 +113,19 @@ public class Prescription {
         this.inventoryUpdated = inventoryUpdated;
     }
     
-    public Date getCreatedDate() {
+    public LocalDateTime getCreatedDate() {
         return createdDate;
     }
     
-    public void setCreatedDate(Date createdDate) {
+    public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
     }
     
-    public Date getLastModified() {
+    public LocalDateTime getLastModified() {
         return lastModified;
     }
     
-    public void setLastModified(Date lastModified) {
+    public void setLastModified(LocalDateTime lastModified) {
         this.lastModified = lastModified;
     }
 } 
