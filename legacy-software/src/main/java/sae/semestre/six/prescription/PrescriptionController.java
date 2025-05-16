@@ -36,7 +36,13 @@ public class PrescriptionController {
     
     @Autowired
     private PrescriptionDao prescriptionDao;
-    
+
+    public PrescriptionController(PatientDao patientDao, PrescriptionDao prescriptionDao, BillingService billingService) {
+        this.patientDao = patientDao;
+        this.prescriptionDao = prescriptionDao;
+        this.billingService = billingService;
+    }
+
     @PostMapping("/add")
     public String addPrescription(
             @RequestParam String patientId,
