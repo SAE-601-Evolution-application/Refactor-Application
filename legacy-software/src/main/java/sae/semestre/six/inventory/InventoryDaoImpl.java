@@ -3,6 +3,7 @@ package sae.semestre.six.inventory;
 import sae.semestre.six.generic.AbstractHibernateDao;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Date;
 
@@ -40,7 +41,7 @@ public class InventoryDaoImpl extends AbstractHibernateDao<Inventory, Long> impl
         
         Inventory inventory = findByItemCode(itemCode);
         inventory.setQuantity(quantity);
-        inventory.setLastRestocked(new Date());
+        inventory.setLastRestocked(LocalDateTime.now());
         update(inventory);
         
         

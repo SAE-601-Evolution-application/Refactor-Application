@@ -5,6 +5,8 @@ import org.springframework.web.bind.annotation.*;
 import sae.semestre.six.supplier.SupplierInvoice;
 import sae.semestre.six.supplier.SupplierInvoiceDetail;
 import sae.semestre.six.service.EmailService;
+
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.io.FileWriter;
@@ -30,7 +32,7 @@ public class InventoryController {
                 
                 inventory.setQuantity(inventory.getQuantity() + detail.getQuantity());
                 inventory.setUnitPrice(detail.getUnitPrice());
-                inventory.setLastRestocked(new Date());
+                inventory.setLastRestocked(LocalDateTime.now());
                 
                 
                 inventoryDao.update(inventory);
