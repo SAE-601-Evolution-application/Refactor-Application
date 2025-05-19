@@ -3,6 +3,8 @@ package sae.semestre.six.medical;
 import sae.semestre.six.patientHistory.PatientHistory;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -25,7 +27,7 @@ public class LabResult {
     
     @Column(name = "test_date")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date testDate;
+    private LocalDateTime testDate;
     
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
@@ -43,8 +45,8 @@ public class LabResult {
     public String getResultValue() { return resultValue; }
     public void setResultValue(String resultValue) { this.resultValue = resultValue; }
     
-    public Date getTestDate() { return testDate; }
-    public void setTestDate(Date testDate) { this.testDate = testDate; }
+    public LocalDateTime getTestDate() { return testDate; }
+    public void setTestDate(LocalDateTime testDate) { this.testDate = testDate; }
     
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }

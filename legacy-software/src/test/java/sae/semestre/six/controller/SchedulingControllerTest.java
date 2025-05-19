@@ -10,6 +10,8 @@ import sae.semestre.six.doctor.DoctorDao;
 import sae.semestre.six.scheduling.SchedulingController;
 import sae.semestre.six.service.EmailService;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,7 +40,7 @@ public class SchedulingControllerTest {
     public void testScheduleAppointmentSuccess() {
         Long doctorId = 1L;
         Long patientId = 2L;
-        Date appointmentDate = createDate(2025, 5, 15, 10);
+        LocalDateTime appointmentDate = LocalDateTime.of(2025, 5, 15, 10,0);
         String subject = new String ("New Appointment Scheduled");
         String body = new String ("You have a new appointment on " + appointmentDate);
 
@@ -59,7 +61,7 @@ public class SchedulingControllerTest {
     public void testScheduleAppointment_AlreadyTaken() {
         Long doctorId = 1L;
         Long patientId = 2L;
-        Date appointmentDate = createDate(2025, 5, 15, 10);
+        LocalDateTime appointmentDate = LocalDateTime.of(2025, 5, 15, 10,0);
 
         Doctor mockDoctor = new Doctor();
         mockDoctor.setEmail("doc@example.com");
@@ -79,7 +81,7 @@ public class SchedulingControllerTest {
     public void testScheduleAppointment_OutOfHours() {
         Long doctorId = 1L;
         Long patientId = 2L;
-        Date earlyMorning = createDate(2025, 5, 15, 8); // before 9 AM
+        LocalDateTime earlyMorning = LocalDateTime.of(2025, 5, 15, 8,0); // before 9 AM
 
         Doctor mockDoctor = new Doctor();
         mockDoctor.setEmail("doc@example.com");
@@ -95,17 +97,17 @@ public class SchedulingControllerTest {
     @Test
     public void testGetAvailableSlots() {
         Long doctorId = 1L;
-        Date date = createDate(2025, 5, 15, 0); // date without time
+        LocalDate date = LocalDate.of(2025, 5, 15); // date without time
         Appointment takenSlot = new Appointment();
-        takenSlot.setAppointmentDate(createDate(2025, 5, 15, 10)); // 10 AM is taken
+        takenSlot.setAppointmentDate(LocalDateTime.of(2025, 5, 15, 10,0)); // 10 AM is taken
 
         when(appointmentDao.findByDoctorId(doctorId)).thenReturn(List.of(takenSlot));
 
-        List<Date> slots = schedulingController.getAvailableSlots(doctorId, date);
+        List<LocalDateTime> slots = schedulingController.getAvailableSlots(doctorId, date);
 
         assertEquals(8, slots.size()); // from 9 to 17 = 9 slots, 1 taken
-        assertFalse(slots.contains(createDate(2025, 5, 15, 10)));
-        assertTrue(slots.contains(createDate(2025, 5, 15, 11)));
+        assertFalse(slots.contains(LocalDateTime.of(2025, 5, 15, 10,0)));
+        assertTrue(slots.contains(LocalDateTime.of(2025, 5, 15, 11,0)));
     }
 
     // Helper method to create Date

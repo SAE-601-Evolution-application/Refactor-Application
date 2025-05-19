@@ -8,6 +8,9 @@ import sae.semestre.six.prescription.Prescription;
 import sae.semestre.six.treatment.Treatment;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -39,7 +42,7 @@ public class PatientHistory {
     
     @Column(name = "visit_date")
     @Temporal(TemporalType.TIMESTAMP)
-    private Date visitDate;
+    private LocalDateTime visitDate;
     
     @Column(columnDefinition = "TEXT")
     private String diagnosis;

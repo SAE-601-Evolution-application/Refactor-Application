@@ -5,6 +5,8 @@ import sae.semestre.six.patient.Patient;
 import sae.semestre.six.patientHistory.PatientHistory;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Set;
 import java.util.HashSet;
@@ -43,10 +45,10 @@ public class Bill {
     
     
     @Column(name = "created_date")
-    private Date createdDate = new Date();
+    private LocalDateTime createdDate = LocalDateTime.now();
     
     @Column(name = "last_modified")
-    private Date lastModified = new Date();
+    private LocalDateTime lastModified = LocalDateTime.now();
 
     @ManyToOne
     private PatientHistory patientHistory;
@@ -74,7 +76,7 @@ public class Bill {
     public String getStatus() { return status; }
     public void setStatus(String status) { 
         this.status = status;
-        this.lastModified = new Date(); 
+        this.lastModified =LocalDateTime.now();
     }
     
     public Set<BillDetail> getBillDetails() { return billDetails; }
