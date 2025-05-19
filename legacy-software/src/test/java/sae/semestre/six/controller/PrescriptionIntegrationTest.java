@@ -2,7 +2,6 @@ package sae.semestre.six.controller;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.Mockito;
 import sae.semestre.six.patient.Patient;
 import sae.semestre.six.patient.PatientDao;
 import sae.semestre.six.prescription.PrescriptionController;
@@ -14,7 +13,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class PrescriptionControllerTest {
+public class PrescriptionIntegrationTest {
 
     private PrescriptionController prescriptionController;
 

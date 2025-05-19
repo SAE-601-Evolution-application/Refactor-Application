@@ -1,5 +1,7 @@
 package sae.semestre.six.billing;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import sae.semestre.six.doctor.DoctorDao;
@@ -49,13 +51,19 @@ public class BillingController {
     }
     
     @PostMapping("/process")
-    public String processBill(
+    public ResponseEntity<String> processBill(
             @RequestParam String patientId,
             @RequestParam String doctorId,
             @RequestParam String[] treatments) {
         try {
             Patient patient = patientDao.findById(Long.parseLong(patientId));
+            if (patient == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: Patient not found");
+            }
             Doctor doctor = doctorDao.findById(Long.parseLong(doctorId));
+            if (doctor == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: Doctor not found");
+            }
             
             Hibernate.initialize(doctor.getAppointments());
             
@@ -102,9 +110,10 @@ public class BillingController {
                 "Bill Number: " + bill.getBillNumber() + "\nTotal: $" + total
             );
             
-            return "Bill processed successfully";
+            return ResponseEntity.ok("Bill processed successfully");
         } catch (Exception e) {
-            return "Error: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error: " + e.getMessage());
+
         }
     }
     
