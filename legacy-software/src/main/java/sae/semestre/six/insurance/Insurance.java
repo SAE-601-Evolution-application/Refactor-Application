@@ -3,6 +3,8 @@ package sae.semestre.six.insurance;
 import sae.semestre.six.patient.Patient;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -31,7 +33,7 @@ public class Insurance {
     
     @Column(name = "expiry_date")
     @Temporal(TemporalType.DATE)
-    private Date expiryDate;
+    private LocalDate expiryDate;
     
     
     public Double calculateCoverage(Double billAmount) {
@@ -41,6 +43,6 @@ public class Insurance {
     
     
     public boolean isValid() {
-        return new Date().before(expiryDate);
+        return LocalDate.now().isBefore(expiryDate);
     }
 } 
