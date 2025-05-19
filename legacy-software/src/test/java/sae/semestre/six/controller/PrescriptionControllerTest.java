@@ -1,7 +1,7 @@
 package sae.semestre.six.controller;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 import sae.semestre.six.patient.Patient;
 import sae.semestre.six.patient.PatientDao;
@@ -11,7 +11,7 @@ import sae.semestre.six.billing.BillingService;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class PrescriptionControllerTest {
@@ -22,7 +22,7 @@ public class PrescriptionControllerTest {
     private PrescriptionDao prescriptionDao;
     private BillingService billingService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         patientDao = mock(PatientDao.class);
         prescriptionDao = mock(PrescriptionDao.class);
