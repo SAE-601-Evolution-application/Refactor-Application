@@ -105,8 +105,9 @@ public class BillingIntegrationTest {
     @Test
     public void testUpdatePriceAndGetPrices() {
         billingController.updatePrice("TEST_TREATMENT", 123.45);
-        Map<String, Double> prices = billingController.getPrices();
+        Map<String, Double> prices = billingController.getPrices().getBody();
 
+        assertNotNull(prices);
         assertEquals(123.45, prices.get("TEST_TREATMENT"));
     }
 
@@ -138,6 +139,7 @@ public class BillingIntegrationTest {
     @Test
     void testGetPendingBills() throws Exception {
         mockMvc.perform(get("/billing/pending"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
     }
 }

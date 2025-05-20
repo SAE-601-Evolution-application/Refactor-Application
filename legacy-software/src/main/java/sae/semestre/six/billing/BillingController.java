@@ -116,14 +116,14 @@ public class BillingController {
 
         }
     }
-    
+
     @PutMapping("/price")
-    public String updatePrice(
+    public ResponseEntity<String> updatePrice(
             @RequestParam String treatment,
             @RequestParam double price) {
         priceList.put(treatment, price);
         recalculateAllPendingBills();
-        return "Price updated";
+        return ResponseEntity.ok("Price updated");
     }
     
     private void recalculateAllPendingBills() {
@@ -131,25 +131,25 @@ public class BillingController {
             processBill(billId, "RECALC", new String[]{"CONSULTATION"});
         }
     }
-    
+
     @GetMapping("/prices")
-    public Map<String, Double> getPrices() {
-        return priceList;
+    public ResponseEntity<Map<String, Double>> getPrices() {
+        return ResponseEntity.ok(priceList);
     }
-    
+
     @GetMapping("/insurance")
-    public String calculateInsurance(@RequestParam double amount) {
+    public ResponseEntity<String> calculateInsurance(@RequestParam double amount) {
         double coverage = amount;
-        return "Insurance coverage: $" + coverage;
+        return ResponseEntity.ok("Insurance coverage: $" + coverage);
     }
-    
+
     @GetMapping("/revenue")
-    public String getTotalRevenue() {
-        return "Total Revenue: $" + totalRevenue;
+    public ResponseEntity<String> getTotalRevenue() {
+        return ResponseEntity.ok("Total Revenue: $" + totalRevenue);
     }
-    
+
     @GetMapping("/pending")
-    public List<String> getPendingBills() {
-        return pendingBills;
+    public ResponseEntity<List<String>> getPendingBills() {
+        return ResponseEntity.ok(pendingBills);
     }
 } 
