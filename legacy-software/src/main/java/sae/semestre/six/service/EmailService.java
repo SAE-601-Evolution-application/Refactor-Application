@@ -1,5 +1,7 @@
 package sae.semestre.six.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -11,23 +13,12 @@ import java.util.Properties;
 public class EmailService {
     
     private static EmailService instance;
-    private final JavaMailSender mailSender;
-    
-    private EmailService() {
-        
-        JavaMailSenderImpl sender = new JavaMailSenderImpl();
-        sender.setHost("smtp.gmail.com");
-        sender.setPort(587);
-        sender.setUsername("hospital.system@gmail.com");
-        sender.setPassword("hospital123!");
-        
-        Properties props = sender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        
-        this.mailSender = sender;
-    }
+
+    @Autowired
+    private JavaMailSender mailSender;
+
+    @Value("${spring.mail.username}")
+    private String from;
     
     public static EmailService getInstance() {
         if (instance == null) {
@@ -35,12 +26,12 @@ public class EmailService {
         }
         return instance;
     }
-    
+
     
     public void sendEmail(String to, String subject, String body) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom("hospital.system@gmail.com");
+            message.setFrom(from);
             message.setTo(to);
             message.setSubject(subject);
             message.setText(body);
