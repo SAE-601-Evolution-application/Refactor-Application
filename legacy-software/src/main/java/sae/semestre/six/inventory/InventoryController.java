@@ -16,55 +16,28 @@ import java.io.IOException;
 @RestController
 @RequestMapping("/inventory")
 public class InventoryController {
-    
-    @Autowired
-    private InventoryDao inventoryDao;
-    
-    private final EmailService emailService = EmailService.getInstance();
-    
-    
+
+    private final InventoryService inventoryService;
+
+    public InventoryController(InventoryService inventoryService) {
+        this.inventoryService = inventoryService;
+    }
+
     @PostMapping("/supplier-invoice")
     public ResponseEntity<String> processSupplierInvoice(@RequestBody SupplierInvoice invoice) {
-        for (SupplierInvoiceDetail detail : invoice.getDetails()) {
-            Inventory inventory = detail.getInventory();
-
-            inventory.setQuantity(inventory.getQuantity() + detail.getQuantity());
-            inventory.setUnitPrice(detail.getUnitPrice());
-            inventory.setLastRestocked(LocalDateTime.now());
-
-            inventoryDao.update(inventory);
-        }
-
+        inventoryService.processSupplierInvoice(invoice);
         return ResponseEntity.ok("Supplier invoice processed successfully");
     }
 
     @GetMapping("/low-stock")
     public ResponseEntity<List<Inventory>> getLowStockItems() {
-        List<Inventory> lowStock = inventoryDao.findAll().stream()
-                .filter(Inventory::needsRestock)
-                .collect(Collectors.toList());
-
+        List<Inventory> lowStock = inventoryService.getLowStockItems();
         return ResponseEntity.ok(lowStock);
     }
 
     @PostMapping("/reorder")
     public ResponseEntity<String> reorderItems() throws IOException {
-        List<Inventory> lowStockItems = inventoryDao.findNeedingRestock();
-
-        for (Inventory item : lowStockItems) {
-            int reorderQuantity = item.getReorderLevel() * 2;
-
-            try (FileWriter fw = new FileWriter("C:\\hospital\\orders.txt", true)) {
-                fw.write("REORDER: " + item.getItemCode() + ", Quantity: " + reorderQuantity + "\n");
-            }
-
-            emailService.sendEmail(
-                "supplier@example.com",
-                "Reorder Request",
-                "Please restock " + item.getName() + " (Quantity: " + reorderQuantity + ")"
-            );
-        }
-        
-        return ResponseEntity.ok("Reorder requests sent for " + lowStockItems.size() + " items");
+        int count = inventoryService.reorderItems();
+        return ResponseEntity.ok("Reorder requests sent for " + count + " items");
     }
 } 
