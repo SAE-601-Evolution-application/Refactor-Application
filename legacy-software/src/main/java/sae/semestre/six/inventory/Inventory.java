@@ -95,7 +95,8 @@ public class Inventory {
     
     
     public boolean needsRestock() {
-        return quantity <= reorderLevel;
+        if (quantity == null || reorderLevel == null) return false;
+        return quantity < reorderLevel;
     }
     
     
