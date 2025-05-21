@@ -1,6 +1,7 @@
 package sae.semestre.six.patientHistory;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -8,38 +9,26 @@ import java.util.*;
 @RestController
 @RequestMapping("/patient-history")
 public class PatientHistoryController {
-    
-    @Autowired
-    private PatientHistoryDao patientHistoryDao;
-    
-    
-    @GetMapping("/search")
-    public List<PatientHistory> searchHistory(
-            @RequestParam String keyword,
-            @RequestParam Date startDate,
-            @RequestParam Date endDate) {
-        
-        
-        List<PatientHistory> results = patientHistoryDao.searchByMultipleCriteria(
-            keyword, startDate, endDate);
-            
-        return results;
+
+    private final PatientHistoryService patientHistoryService;
+
+    public PatientHistoryController(PatientHistoryService patientHistoryService) {
+        this.patientHistoryService = patientHistoryService;
     }
-    
-    
+
+    @GetMapping("/search")
+    public ResponseEntity<List<PatientHistory>> searchHistory(
+            @RequestParam String keyword,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate) {
+
+        List<PatientHistory> results = patientHistoryService.searchHistory(keyword, startDate, endDate);
+        return ResponseEntity.ok(results);
+    }
+
     @GetMapping("/patient/{patientId}/summary")
-    public Map<String, Object> getPatientSummary(@PathVariable Long patientId) {
-        List<PatientHistory> histories = patientHistoryDao.findCompleteHistoryByPatientId(patientId);
-        
-        Map<String, Object> summary = new HashMap<>();
-        summary.put("visitCount", histories.size());
-        
-        
-        double totalBilled = histories.stream()
-            .mapToDouble(PatientHistory::getTotalBilledAmount)
-            .sum();
-            
-        summary.put("totalBilled", totalBilled);
-        return summary;
+    public ResponseEntity<Map<String, Object>> getPatientSummary(@PathVariable Long patientId) {
+        Map<String, Object> summary = patientHistoryService.getPatientSummary(patientId);
+        return ResponseEntity.ok(summary);
     }
 } 
