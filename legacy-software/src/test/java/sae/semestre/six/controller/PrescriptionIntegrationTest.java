@@ -1,141 +1,93 @@
-package sae.semestre.six.controller;
+package sae.semestre.six.prescription;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.http.ResponseEntity;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 import sae.semestre.six.billing.BillingService;
-import sae.semestre.six.patient.Patient;
 import sae.semestre.six.patient.PatientDao;
-import sae.semestre.six.prescription.PrescriptionController;
-import sae.semestre.six.prescription.PrescriptionDao;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class PrescriptionIntegrationTest {
+@WebMvcTest(PrescriptionController.class)
+class PrescriptionControllerIntegrationTest {
 
-    private PrescriptionController prescriptionController;
-    private PatientDao patientDao;
-    private PrescriptionDao prescriptionDao;
-    private BillingService billingService;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @BeforeEach
-    public void setUp() {
-        patientDao = mock(PatientDao.class);
-        prescriptionDao = mock(PrescriptionDao.class);
-        billingService = mock(BillingService.class);
+    @MockBean
+    private PrescriptionService prescriptionService;
 
-        prescriptionController = new PrescriptionController(patientDao, prescriptionDao, billingService);
-
-        Patient patient = new Patient();
-        patient.setId(1L);
-        when(patientDao.findById(1L)).thenReturn(patient);
-    }
-
-    // ----------------------
-    // Test de addPrescription
-    // ----------------------
     @Test
-    public void testAddPrescriptionSuccess() {
-        ResponseEntity<String> response = prescriptionController.addPrescription(
-                "1",
-                new String[]{"AMOXICILLINE"},
-                "Test notes"
-        );
+    void addPrescription_shouldReturnOk() throws Exception {
+        when(prescriptionService.addPrescription("1", new String[]{"PARACETAMOL"}, "Take 2/day"))
+                .thenReturn("RX1");
 
-        assertEquals(200, response.getStatusCodeValue());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().contains("created"));
-
-        verify(billingService).processBill(eq("1"), eq("SYSTEM"), any());
+        mockMvc.perform(post("/prescriptions/add")
+                        .param("patientId", "1")
+                        .param("medicines", "PARACETAMOL")
+                        .param("notes", "Take 2/day"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Prescription RX1 created and billed"));
     }
 
     @Test
-    public void testAddPrescriptionWithUnknownPatient() {
-        when(patientDao.findById(-1L)).thenReturn(null);
+    void getPatientPrescriptions_shouldReturnList() throws Exception {
+        when(prescriptionService.getPrescriptions("1")).thenReturn(List.of("RX1", "RX2"));
 
-        ResponseEntity<String> response = prescriptionController.addPrescription(
-                "-1",
-                new String[]{"VITAMINS"},
-                "Note"
-        );
-
-        assertEquals(404, response.getStatusCodeValue());
-        assertEquals("Patient not found", response.getBody());
+        mockMvc.perform(get("/prescriptions/patient/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0]").value("RX1"))
+                .andExpect(jsonPath("$[1]").value("RX2"));
     }
 
-    // ----------------------
-    // Test de getPatientPrescriptions
-    // ----------------------
     @Test
-    public void testGetPatientPrescriptions() {
-        // Ajout d'une prescription
-        prescriptionController.addPrescription("1", new String[]{"PARACETAMOL"}, "Notes");
+    void getInventory_shouldReturnInventoryMap() throws Exception {
+        Map<String, Integer> inventory = new HashMap<>();
+        inventory.put("PARACETAMOL", 10);
+        inventory.put("VITAMINS", 5);
 
-        ResponseEntity<List<String>> response = prescriptionController.getPatientPrescriptions("1");
-        assertEquals(200, response.getStatusCodeValue());
+        when(prescriptionService.getInventory()).thenReturn(inventory);
 
-        List<String> prescriptions = response.getBody();
-        assertNotNull(prescriptions);
-        assertFalse(prescriptions.isEmpty());
-        assertTrue(prescriptions.get(0).startsWith("RX"));
+        mockMvc.perform(get("/prescriptions/inventory"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.PARACETAMOL").value(10))
+                .andExpect(jsonPath("$.VITAMINS").value(5));
     }
 
-    // ----------------------
-    // Test de refillMedicine
-    // ----------------------
     @Test
-    public void testRefillMedicine() {
-        ResponseEntity<String> response = prescriptionController.refillMedicine("PARACETAMOL", 10);
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Refilled PARACETAMOL", response.getBody());
+    void refillMedicine_shouldReturnOkMessage() throws Exception {
+        mockMvc.perform(post("/prescriptions/refill")
+                        .param("medicine", "PARACETAMOL")
+                        .param("quantity", "5"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Refilled 5 units of PARACETAMOL"));
+
+        verify(prescriptionService).refillMedicine("PARACETAMOL", 5);
     }
 
-    // ----------------------
-    // Test de getInventory
-    // ----------------------
     @Test
-    public void testGetInventoryAfterRefill() {
-        prescriptionController.refillMedicine("PARACETAMOL", 10);
+    void getCost_shouldReturnCorrectCost() throws Exception {
+        when(prescriptionService.getCost("RX1")).thenReturn(48.0);
 
-        ResponseEntity<Map<String, Integer>> response = prescriptionController.getInventory();
-        assertEquals(200, response.getStatusCodeValue());
-
-        Map<String, Integer> inventory = response.getBody();
-        assertNotNull(inventory);
-        assertEquals(10, inventory.getOrDefault("PARACETAMOL", 0).intValue());
+        mockMvc.perform(get("/prescriptions/cost/RX1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("48.0"));
     }
 
-    // ----------------------
-    // Test de getCost
-    // ----------------------
     @Test
-    public void testGetCost() {
-        ResponseEntity<Double> response = prescriptionController.getCost("RX1");
-        assertEquals(200, response.getStatusCodeValue());
+    void clearAllData_shouldReturnOk() throws Exception {
+        mockMvc.perform(delete("/prescriptions/clear"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("All data cleared"));
 
-        Double cost = response.getBody();
-        assertNotNull(cost);
-        assertEquals(54.0, cost, 0.01); // 45.0 * 1.2
-    }
-
-    // ----------------------
-    // Test de clearAllData
-    // ----------------------
-    @Test
-    public void testClearAllData() {
-        // Ajoute un peu d'inventaire pour tester le reset
-        prescriptionController.refillMedicine("VITAMINS", 5);
-
-        ResponseEntity<String> response = prescriptionController.clearAllData();
-        assertEquals(200, response.getStatusCodeValue());
-        assertNotNull(response.getBody());
-        assertEquals("", response.getBody());
-
-        ResponseEntity<Map<String, Integer>> inventoryResponse = prescriptionController.getInventory();
-        assertTrue(inventoryResponse.getBody().isEmpty());
+        verify(prescriptionService).clearAllData();
     }
 }
