@@ -1,64 +1,40 @@
 package sae.semestre.six.room;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sae.semestre.six.appointment.AppointmentDao;
-import sae.semestre.six.appointment.Appointment;
 
 import java.util.*;
 
 @RestController
 @RequestMapping("/rooms")
 public class RoomController {
-    
-    @Autowired
-    private RoomDao roomDao;
-    
-    @Autowired
-    private AppointmentDao appointmentDao;
+
+    private final RoomService roomService;
+
+    public RoomController(RoomService roomService) {
+        this.roomService = roomService;
+    }
     
     
     @PostMapping("/assign")
-    public String assignRoom(@RequestParam Long appointmentId, @RequestParam String roomNumber) {
+    public ResponseEntity<String> assignRoom(@RequestParam Long appointmentId, @RequestParam String roomNumber) {
         try {
-            Room room = roomDao.findByRoomNumber(roomNumber);
-            Appointment appointment = appointmentDao.findById(appointmentId);
-            
-            
-            if (room.getType().equals("SURGERY") && 
-                !appointment.getDoctor().getSpecialization().equals("SURGEON")) {
-                return "Error: Only surgeons can use surgery rooms";
-            }
-            
-            
-            if (room.getCurrentPatientCount() >= room.getCapacity()) {
-                return "Error: Room is at full capacity";
-            }
-            
-            
-            room.setCurrentPatientCount(room.getCurrentPatientCount() + 1);
-            appointment.setRoomNumber(roomNumber);
-            
-            roomDao.update(room);
-            appointmentDao.update(appointment);
-            
-            return "Room assigned successfully";
+            String message = roomService.assignRoom(appointmentId, roomNumber);
+            return ResponseEntity.ok(message);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         } catch (Exception e) {
-            return "Error: " + e.getMessage();
+            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
         }
     }
     
     
     @GetMapping("/availability")
-    public Map<String, Object> getRoomAvailability(@RequestParam String roomNumber) {
-        Room room = roomDao.findByRoomNumber(roomNumber);
-        Map<String, Object> result = new HashMap<>();
-        
-        result.put("roomNumber", room.getRoomNumber());
-        result.put("capacity", room.getCapacity());
-        result.put("currentPatients", room.getCurrentPatientCount());
-        result.put("available", room.canAcceptPatient());
-        
-        return result;
+    public ResponseEntity<Map<String, Object>> getRoomAvailability(@RequestParam String roomNumber) {
+        try {
+            return ResponseEntity.ok(roomService.getRoomAvailability(roomNumber));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 } 
