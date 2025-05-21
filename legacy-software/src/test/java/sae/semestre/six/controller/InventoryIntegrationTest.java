@@ -2,18 +2,13 @@ package sae.semestre.six.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import sae.semestre.six.inventory.Inventory;
-import sae.semestre.six.inventory.InventoryDao;
 import sae.semestre.six.inventory.InventoryController;
 import sae.semestre.six.inventory.InventoryService;
-import sae.semestre.six.service.EmailService;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -37,10 +32,6 @@ public class InventoryIntegrationTest {
         InventoryController inventoryController = new InventoryController(inventoryService);
         mockMvc = MockMvcBuilders.standaloneSetup(inventoryController).build();
     }
-
-    // ---------------------------------------------------
-    // /inventory/supplier-invoice
-    // ---------------------------------------------------
 
     @Test
     void testProcessSupplierInvoice_success() throws Exception {
@@ -77,10 +68,6 @@ public class InventoryIntegrationTest {
                 .andExpect(status().isBadRequest()); // 400
     }
 
-    // ---------------------------------------------------
-    // /inventory/low-stock
-    // ---------------------------------------------------
-
     @Test
     void testGetLowStockItems_success() throws Exception {
         Inventory item = new Inventory();
@@ -96,10 +83,6 @@ public class InventoryIntegrationTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$[0].name").value("Item 1"));
     }
-
-    // ---------------------------------------------------
-    // /inventory/reorder
-    // ---------------------------------------------------
 
     @Test
     void testReorderItems_returnsCorrectResponse() throws Exception {

@@ -1,16 +1,10 @@
 package sae.semestre.six.inventory;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sae.semestre.six.supplier.SupplierInvoice;
-import sae.semestre.six.supplier.SupplierInvoiceDetail;
-import sae.semestre.six.service.EmailService;
 
-import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.io.FileWriter;
 import java.io.IOException;
 
 @RestController
