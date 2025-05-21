@@ -1,6 +1,7 @@
 package sae.semestre.six.inventory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import sae.semestre.six.service.EmailService;
 import sae.semestre.six.supplier.SupplierInvoice;
@@ -16,6 +17,9 @@ import java.util.stream.Collectors;
 public class InventoryService {
 
     private final InventoryDao inventoryDao;
+
+    @Value("${spring.hospital.orders.path}")
+    private String ordersFilePath;
 
     @Autowired
     private EmailService emailService;
@@ -43,7 +47,7 @@ public class InventoryService {
     public int reorderItems() throws IOException {
         List<Inventory> lowStockItems = inventoryDao.findNeedingRestock();
 
-        try (FileWriter fw = new FileWriter("C:\\hospital\\orders.txt", true)) {
+        try (FileWriter fw = new FileWriter(ordersFilePath, true)) {
             for (Inventory item : lowStockItems) {
                 int reorderQuantity = item.getReorderLevel() * 2;
                 fw.write("REORDER: " + item.getItemCode() + ", Quantity: " + reorderQuantity + "\n");

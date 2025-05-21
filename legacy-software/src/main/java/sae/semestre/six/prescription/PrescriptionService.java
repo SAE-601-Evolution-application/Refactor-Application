@@ -1,6 +1,7 @@
 package sae.semestre.six.prescription;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import sae.semestre.six.billing.BillingService;
 import sae.semestre.six.patient.Patient;
@@ -14,10 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class PrescriptionService {
 
-    private final PatientDao patientDao;
-    private final PrescriptionDao prescriptionDao;
-    private final BillingService billingService;
-
     private static final Map<String, List<String>> patientPrescriptions = new ConcurrentHashMap<>();
     private static final Map<String, Integer> medicineInventory = new ConcurrentHashMap<>();
 
@@ -28,7 +25,13 @@ public class PrescriptionService {
     }};
 
     private static int prescriptionCounter = 0;
-    private static final String AUDIT_FILE = "C:\\hospital\\prescriptions.log";
+
+    private final PatientDao patientDao;
+    private final PrescriptionDao prescriptionDao;
+    private final BillingService billingService;
+
+    @Value("${spring.hospital.prescriptions.path}")
+    private String prescriptionsFilePath;
 
     @Autowired
     public PrescriptionService(PatientDao patientDao, PrescriptionDao prescriptionDao, BillingService billingService) {
@@ -57,7 +60,7 @@ public class PrescriptionService {
         prescriptionDao.save(prescription);
 
         // Audit log
-        try (FileWriter writer = new FileWriter(AUDIT_FILE, true)) {
+        try (FileWriter writer = new FileWriter(prescriptionsFilePath, true)) {
             writer.append(new Date().toString())
                     .append(" - ")
                     .append(prescriptionId)
