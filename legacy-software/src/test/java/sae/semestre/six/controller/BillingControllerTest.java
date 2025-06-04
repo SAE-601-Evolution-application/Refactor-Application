@@ -3,7 +3,7 @@ package sae.semestre.six.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sae.semestre.six.billing.Bill;
-import sae.semestre.six.billing.BillDao;
+import sae.semestre.six.billing.BillRepository;
 import sae.semestre.six.billing.BillingController;
 import sae.semestre.six.doctor.DoctorDao;
 import sae.semestre.six.doctor.Doctor;
@@ -19,14 +19,14 @@ import static org.mockito.Mockito.*;
 public class BillingControllerTest {
 
     private BillingController billingController;
-    private BillDao billDao;
+    private BillRepository billDao;
     private PatientDao patientDao;
     private DoctorDao doctorDao;
     private EmailService emailService;
 
     @BeforeEach
     public void setUp() {
-        billDao = mock(BillDao.class);
+        billDao = mock(BillRepository.class);
         patientDao = mock(PatientDao.class);
         doctorDao = mock(DoctorDao.class);
         emailService = mock(EmailService.class);
