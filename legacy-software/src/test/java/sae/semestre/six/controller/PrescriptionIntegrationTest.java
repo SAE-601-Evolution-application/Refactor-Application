@@ -1,74 +1,93 @@
-package sae.semestre.six.controller;
+package sae.semestre.six.prescription;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeEach;
-import sae.semestre.six.patient.Patient;
-import sae.semestre.six.patient.PatientDao;
-import sae.semestre.six.prescription.PrescriptionController;
-import sae.semestre.six.prescription.PrescriptionDao;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 import sae.semestre.six.billing.BillingService;
+import sae.semestre.six.patient.PatientDao;
 
-import java.util.List;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-public class PrescriptionIntegrationTest {
+@WebMvcTest(PrescriptionController.class)
+class PrescriptionControllerIntegrationTest {
 
-    private PrescriptionController prescriptionController;
+    @Autowired
+    private MockMvc mockMvc;
 
-    private PatientDao patientDao;
-    private PrescriptionDao prescriptionDao;
-    private BillingService billingService;
+    @MockBean
+    private PrescriptionService prescriptionService;
 
-    @BeforeEach
-    public void setUp() {
-        patientDao = mock(PatientDao.class);
-        prescriptionDao = mock(PrescriptionDao.class);
-        billingService = mock(BillingService.class);
+    @Test
+    void addPrescription_shouldReturnOk() throws Exception {
+        when(prescriptionService.addPrescription("1", new String[]{"PARACETAMOL"}, "Take 2/day"))
+                .thenReturn("RX1");
 
-        prescriptionController = new PrescriptionController(patientDao, prescriptionDao, billingService);
-
-        Patient patient = new Patient();
-        patient.setId(1L);
-        when(patientDao.findById(1L)).thenReturn(patient);
+        mockMvc.perform(post("/prescriptions/add")
+                        .param("patientId", "1")
+                        .param("medicines", "PARACETAMOL")
+                        .param("notes", "Take 2/day"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Prescription RX1 created and billed"));
     }
 
     @Test
-    public void testAddAndRetrievePrescription() {
-        // Appel de la méthode à tester
-        String result = prescriptionController.addPrescription(
-                "1",
-                new String[]{"AMOXICILLINE"},
-                "Test notes"
-        );
+    void getPatientPrescriptions_shouldReturnList() throws Exception {
+        when(prescriptionService.getPrescriptions("1")).thenReturn(List.of("RX1", "RX2"));
 
-        // Vérification du résultat
-        assertTrue(result.contains("created"));
-
-        // Récupération des prescriptions
-        List<String> prescriptions = prescriptionController.getPatientPrescriptions("1");
-
-        assertNotNull(prescriptions);
-        assertFalse(prescriptions.isEmpty());
-        assertTrue(prescriptions.get(0).startsWith("RX"));
-
-        // Vérifie si billingService.processBill() a été appelé
-        verify(billingService).processBill(eq("1"), eq("SYSTEM"), any());
+        mockMvc.perform(get("/prescriptions/patient/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0]").value("RX1"))
+                .andExpect(jsonPath("$[1]").value("RX2"));
     }
-
-
 
     @Test
-    public void testInventory() {
-        prescriptionController.refillMedicine("PARACETAMOL", 10);
-        assertEquals(10, (int) prescriptionController.getInventory().get("PARACETAMOL"));
+    void getInventory_shouldReturnInventoryMap() throws Exception {
+        Map<String, Integer> inventory = new HashMap<>();
+        inventory.put("PARACETAMOL", 10);
+        inventory.put("VITAMINS", 5);
+
+        when(prescriptionService.getInventory()).thenReturn(inventory);
+
+        mockMvc.perform(get("/prescriptions/inventory"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.PARACETAMOL").value(10))
+                .andExpect(jsonPath("$.VITAMINS").value(5));
     }
-    
-    
+
     @Test
-    public void testClearData() {
-        prescriptionController.clearAllData();
-        assertTrue(prescriptionController.getInventory().isEmpty());
+    void refillMedicine_shouldReturnOkMessage() throws Exception {
+        mockMvc.perform(post("/prescriptions/refill")
+                        .param("medicine", "PARACETAMOL")
+                        .param("quantity", "5"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Refilled 5 units of PARACETAMOL"));
+
+        verify(prescriptionService).refillMedicine("PARACETAMOL", 5);
     }
-} 
+
+    @Test
+    void getCost_shouldReturnCorrectCost() throws Exception {
+        when(prescriptionService.getCost("RX1")).thenReturn(48.0);
+
+        mockMvc.perform(get("/prescriptions/cost/RX1"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("48.0"));
+    }
+
+    @Test
+    void clearAllData_shouldReturnOk() throws Exception {
+        mockMvc.perform(delete("/prescriptions/clear"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("All data cleared"));
+
+        verify(prescriptionService).clearAllData();
+    }
+}

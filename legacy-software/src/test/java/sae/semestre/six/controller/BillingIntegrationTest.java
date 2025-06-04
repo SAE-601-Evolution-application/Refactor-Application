@@ -2,144 +2,99 @@ package sae.semestre.six.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import sae.semestre.six.billing.BillDao;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import sae.semestre.six.billing.BillingController;
-import sae.semestre.six.doctor.DoctorDao;
-import sae.semestre.six.patient.PatientDao;
-import sae.semestre.six.service.EmailService;
+import sae.semestre.six.billing.BillingService;
+import sae.semestre.six.insurance.Insurance;
+import sae.semestre.six.insurance.InsuranceRepository;
 
-import java.util.*;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
-                properties = "spring.config.name=application-test")
-@AutoConfigureMockMvc
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class BillingIntegrationTest {
 
-    private BillingController billingController;
-    private BillDao billDao;
-    private PatientDao patientDao;
-    private DoctorDao doctorDao;
-    private EmailService emailService;
-
-    @Autowired
     private MockMvc mockMvc;
 
+    private BillingService billingService;
+    private InsuranceRepository insuranceRepository;
+
     @BeforeEach
-    public void setUp() {
-        billDao = mock(BillDao.class);
-        patientDao = mock(PatientDao.class);
-        doctorDao = mock(DoctorDao.class);
-        emailService = mock(EmailService.class);
-
-        billingController = BillingController.getInstance();
-
-        // Inject mocks via reflection (since fields are private and autowired)
-        injectDependencies();
-    }
-
-    private void injectDependencies() {
-        try {
-            var billDaoField = BillingController.class.getDeclaredField("billDao");
-            billDaoField.setAccessible(true);
-            billDaoField.set(billingController, billDao);
-
-            var patientDaoField = BillingController.class.getDeclaredField("patientDao");
-            patientDaoField.setAccessible(true);
-            patientDaoField.set(billingController, patientDao);
-
-            var doctorDaoField = BillingController.class.getDeclaredField("doctorDao");
-            doctorDaoField.setAccessible(true);
-            doctorDaoField.set(billingController, doctorDao);
-
-            var emailServiceField = BillingController.class.getDeclaredField("emailService");
-            emailServiceField.setAccessible(true);
-            emailServiceField.set(billingController, emailService);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to inject dependencies", e);
-        }
+    public void setup() {
+        billingService = mock(BillingService.class);
+        insuranceRepository = mock(InsuranceRepository.class);
+        BillingController billingController = new BillingController(billingService, insuranceRepository);
+        mockMvc = MockMvcBuilders.standaloneSetup(billingController).build();
     }
 
     @Test
-    void testProcessBillEndpoint_success() throws Exception {
+    void testProcessBill_success() throws Exception {
         mockMvc.perform(post("/billing/process")
-                        .param("patientId", "1")
-                        .param("doctorId", "1")
-                        .param("treatments", "CONSULTATION"))
+                        .param("patientId", "123")
+                        .param("doctorId", "456")
+                        .param("prestations", "Consultation", "Scan"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Bill processed successfully")));
+                .andExpect(content().string("Bill processed successfully"));
     }
 
     @Test
-    void testProcessBill_invalidPatient() throws Exception {
-        mockMvc.perform(post("/billing/process")
-                        .param("patientId", "9999")  // Patient inexistant
-                        .param("doctorId", "1")
-                        .param("treatments", "CONSULTATION"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Error")));
-    }
+    void testCalculateInsurance_withValidInsurance() throws Exception {
+        Insurance mockInsurance = mock(Insurance.class);
+        when(insuranceRepository.findInsuranceByPatientId(1)).thenReturn(mockInsurance);
+        when(mockInsurance.isValid()).thenReturn(true);
+        when(mockInsurance.calculateCoverage(200.0)).thenReturn(150.0);
 
-    @Test
-    void testProcessBill_invalidDoctor() throws Exception {
-        mockMvc.perform(post("/billing/process")
-                        .param("patientId", "1") // Patient existant
-                        .param("doctorId", "9999")  // Docteur inexistant
-                        .param("treatments", "CONSULTATION"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Error")));
-    }
-
-    @Test
-    public void testUpdatePriceAndGetPrices() {
-        billingController.updatePrice("TEST_TREATMENT", 123.45);
-        Map<String, Double> prices = billingController.getPrices().getBody();
-
-        assertNotNull(prices);
-        assertEquals(123.45, prices.get("TEST_TREATMENT"));
-    }
-
-
-    @Test
-    void testCalculateInsuranceEndpoint() throws Exception {
         mockMvc.perform(get("/billing/insurance")
-                        .param("amount", "500"))
+                        .param("amount", "200.0")
+                        .param("patientId", "1"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Insurance coverage")));
+                .andExpect(content().string("Insurance coverage: $150.0"));
     }
 
     @Test
-    void testGetPrices() throws Exception {
-        mockMvc.perform(get("/billing/prices"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.CONSULTATION").isNumber());
+    void testCalculateInsurance_noInsuranceFound() throws Exception {
+        when(insuranceRepository.findInsuranceByPatientId(99)).thenReturn(null);
+
+        mockMvc.perform(get("/billing/insurance")
+                        .param("amount", "100.0")
+                        .param("patientId", "99"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("No insurance found for this patient."));
     }
 
     @Test
-    void testUpdatePrice() throws Exception {
-        mockMvc.perform(put("/billing/price")
-                        .param("treatment", "TEST_TREATMENT")
-                        .param("price", "123.45"))
+    void testCalculateInsurance_expiredInsurance() throws Exception {
+        Insurance expiredInsurance = mock(Insurance.class);
+        when(insuranceRepository.findInsuranceByPatientId(2)).thenReturn(expiredInsurance);
+        when(expiredInsurance.isValid()).thenReturn(false);
+
+        mockMvc.perform(get("/billing/insurance")
+                        .param("amount", "100.0")
+                        .param("patientId", "2"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("updated")));
+                .andExpect(content().string("Insurance expired."));
     }
 
     @Test
-    void testGetPendingBills() throws Exception {
+    void testGetTotalRevenue_success() throws Exception {
+        when(billingService.getTotalRevenue()).thenReturn(987.65);
+
+        mockMvc.perform(get("/billing/revenue"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Total Revenue: $987.65"));
+    }
+
+    @Test
+    void testGetPendingBills_returnsEmptyList() throws Exception {
         mockMvc.perform(get("/billing/pending"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray());
+                .andExpect(content().json("[]"));
     }
 }

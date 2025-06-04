@@ -72,4 +72,21 @@ public class PatientHistory {
             .mapToDouble(Bill::getTotalAmount)
             .sum();
     }
+
+    public void setDiagnosis(String diagnosis) {
+        this.diagnosis = diagnosis;
+    }
+
+    public void setVisitDate(LocalDateTime visitDate) {
+        this.visitDate = visitDate;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public String getDiagnosis() {
+        return this.diagnosis;
+    }
+
 } 
