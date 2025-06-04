@@ -24,7 +24,7 @@ public class RoomController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Error: " + e.getMessage());
+            return ResponseEntity.internalServerError().body("Error : " + e.getMessage());
         }
     }
     

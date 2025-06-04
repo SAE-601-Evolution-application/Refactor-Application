@@ -69,7 +69,7 @@ public class RoomIntegrationTest {
                         .param("appointmentId", "1")
                         .param("roomNumber", "101"))
                 .andExpect(status().isInternalServerError())
-                .andExpect(content().string("Error: Database error"));
+                .andExpect(content().string("Error : Database error"));
 
         verify(roomService).assignRoom(1L, "101");
     }
