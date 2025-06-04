@@ -97,3 +97,9 @@ INSERT INTO inventory (item_code, name, quantity, unit_price, reorder_level, las
                                                                                                  ('PAN002', 'Sparadrap hypoallergénique', 150, 2.20, 30, '2024-02-01 10:00:00'),
                                                                                                  ('MED004', 'Sumatriptan 50mg', 200, 1.20, 50, '2024-02-01 10:00:00'),
                                                                                                  ('PRO002', 'Masques chirurgicaux', 1000, 5.00, 200, '2024-02-01 10:00:00');
+
+*/
+INSERT INTO prestation (name, price) VALUES
+                                         ('CONSULTATION', 50.0),
+                                         ('XRAY', 150.0),
+                                         ('CHIRURGIE', 1000.0);
