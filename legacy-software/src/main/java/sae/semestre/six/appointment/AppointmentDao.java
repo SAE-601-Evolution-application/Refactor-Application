@@ -1,5 +1,6 @@
 package sae.semestre.six.appointment;
 
+import org.springframework.data.jpa.repository.Query;
 import sae.semestre.six.generic.GenericDao;
 
 import java.util.Date;
@@ -9,4 +10,6 @@ public interface AppointmentDao extends GenericDao<Appointment, Long> {
     List<Appointment> findByPatientId(Long patientId);
     List<Appointment> findByDoctorId(Long doctorId);
     List<Appointment> findByDateRange(Date startDate, Date endDate);
+
+    Long findMaxId();
 } 

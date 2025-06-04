@@ -16,6 +16,8 @@ public class AppointmentDaoImpl extends AbstractHibernateDao<Appointment, Long> 
                 .setParameter("patientId", patientId)
                 .getResultList();
     }
+
+
     
     @Override
     @SuppressWarnings("unchecked")
@@ -34,5 +36,11 @@ public class AppointmentDaoImpl extends AbstractHibernateDao<Appointment, Long> 
                 .setParameter("startDate", startDate)
                 .setParameter("endDate", endDate)
                 .getResultList();
+    }
+
+    @Override
+    public Long findMaxId() {
+        String query = "SELECT MAX(a.id) FROM Appointment a";
+        return (Long) getEntityManager().createQuery(query).getSingleResult();
     }
 } 
