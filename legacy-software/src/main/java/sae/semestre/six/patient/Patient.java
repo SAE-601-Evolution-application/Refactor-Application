@@ -36,6 +36,9 @@ public class Patient {
     @Column(name = "address")
     private String address;
 
+    @Column(name = "email")
+    private String email;
+
     @Column(name = "phone_number")
     private String phoneNumber;
 
@@ -114,4 +117,8 @@ public class Patient {
     public Set<Appointment> getAppointments() {
         return appointments;
     }
-} 
+
+    public String getEmail() { return email;}
+
+    public void setEmail(String email) {this.email = email;}
+}

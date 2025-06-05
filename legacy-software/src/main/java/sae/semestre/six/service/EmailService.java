@@ -42,4 +42,19 @@ public class EmailService {
             System.out.println("Failed to send email: " + e.getMessage());
         }
     }
+
+    public void sendAppointmentMail(String patient, String doctor, String subject, String body){
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(from);
+            message.setTo(patient,doctor);
+            message.setSubject(subject);
+            message.setText(body);
+
+            mailSender.send(message);
+            System.out.println("Email sent successfully");
+        } catch (Exception e) {
+            System.out.println("Failed to send email: " + e.getMessage());
+        }
+    }
 } 
