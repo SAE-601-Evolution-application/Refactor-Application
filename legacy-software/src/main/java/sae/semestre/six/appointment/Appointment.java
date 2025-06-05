@@ -117,4 +117,12 @@ public class Appointment {
     public void setRoomNumber(String roomNumber) {
         this.roomNumber = roomNumber;
     }
-} 
+
+    public Room getRoom() {
+        return room;
+    }
+
+    public void setRoom(Room room) {
+        this.room = room;
+    }
+}

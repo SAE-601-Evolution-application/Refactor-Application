@@ -16,6 +16,8 @@ public class AppointmentDaoImpl extends AbstractHibernateDao<Appointment, Long> 
                 .setParameter("patientId", patientId)
                 .getResultList();
     }
+
+
     
     @Override
     @SuppressWarnings("unchecked")
@@ -23,6 +25,15 @@ public class AppointmentDaoImpl extends AbstractHibernateDao<Appointment, Long> 
         return getEntityManager()
                 .createQuery("FROM Appointment WHERE doctor.id = :doctorId")
                 .setParameter("doctorId", doctorId)
+                .getResultList();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<Appointment> findByRoomId(Long roomNumber) {
+        return getEntityManager()
+                .createQuery("FROM Appointment WHERE room.id = :roomNumber")
+                .setParameter("roomNumber", roomNumber)
                 .getResultList();
     }
     
@@ -34,5 +45,11 @@ public class AppointmentDaoImpl extends AbstractHibernateDao<Appointment, Long> 
                 .setParameter("startDate", startDate)
                 .setParameter("endDate", endDate)
                 .getResultList();
+    }
+
+    @Override
+    public Long findMaxId() {
+        String query = "SELECT MAX(a.id) FROM Appointment a";
+        return (Long) getEntityManager().createQuery(query).getSingleResult();
     }
 } 
