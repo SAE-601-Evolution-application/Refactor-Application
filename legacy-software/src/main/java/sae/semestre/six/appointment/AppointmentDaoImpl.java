@@ -27,6 +27,15 @@ public class AppointmentDaoImpl extends AbstractHibernateDao<Appointment, Long> 
                 .setParameter("doctorId", doctorId)
                 .getResultList();
     }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<Appointment> findByRoomNumber(String roomNumber) {
+        return getEntityManager()
+                .createQuery("FROM Appointment WHERE room.roomNumber = :roomNumber")
+                .setParameter("roomNumber", roomNumber)
+                .getResultList();
+    }
     
     @Override
     @SuppressWarnings("unchecked")

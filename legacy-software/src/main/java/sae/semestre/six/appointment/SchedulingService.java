@@ -34,7 +34,7 @@ public class SchedulingService {
     @Autowired
     private EmailService emailService;
 
-    public String scheduleAppointment(Long doctorId, Long patientId, LocalDateTime appointmentDate){
+    public String scheduleAppointment(Long doctorId,Long patientId, String roomNumber, LocalDateTime appointmentDate){
         try {
             Doctor doctor = doctorDao.findById(doctorId);
             Patient patient = patientDao.findById(patientId);
@@ -48,18 +48,22 @@ public class SchedulingService {
                 }
             }
 
+            List<Appointment> roomAppointments = appointmentDao.findByRoomNumber(roomNumber);
+            for (Appointment existing : roomAppointments){
+                if (existing.getAppointmentDate().equals(appointmentDate)) {
+                    return "The room is not available at this time";
+                }
+            }
+
             int hour = appointmentDate.getHour();
             if (hour < 9 || hour > 17) {
                 return "Appointments only available between 9 AM and 5 PM";
             }
 
-            Room room = roomDao.findAll().stream().filter(r -> !r.getIsOccupied())
-                    .findFirst().orElseThrow();
-
             Appointment newAppointment = new Appointment();
             newAppointment.setDoctor(doctor);
             newAppointment.setPatient(patient);
-            newAppointment.setRoomNumber(room.getRoomNumber());
+            newAppointment.setRoomNumber(roomNumber);
             newAppointment.setAppointmentNumber(setAppointmentNumber());
 
             newAppointment.setAppointmentDate(appointmentDate);
@@ -81,7 +85,7 @@ public class SchedulingService {
         return "RDV00" + id;
     }
 
-    public List<LocalDateTime> getPatientAvailableSlots(Long doctorId, LocalDate date){
+    public List<LocalDateTime> getDoctorAvailableSlots(Long doctorId, LocalDate date){
         List<LocalDateTime> availableSlots = new ArrayList<>();
         for (int hour = 9; hour <= 17; hour++) {
             LocalDateTime slot = LocalDateTime.of(date, LocalTime.of(hour,0));
@@ -98,6 +102,26 @@ public class SchedulingService {
             }
         }
 
+        return availableSlots;
+    }
+
+    public List<LocalDateTime> getRoomAvailableSlots(String roomNumber, LocalDate date){
+        List<LocalDateTime> availableSlots = new ArrayList<>();
+        for (int hour = 9; hour <= 17; hour++) {
+            LocalDateTime slot = LocalDateTime.of(date, LocalTime.of(hour,0));
+            boolean slotAvailable = true;
+            List<Appointment> s = appointmentDao.findByRoomNumber(roomNumber);
+            for (Appointment app : appointmentDao.findByRoomNumber(roomNumber)) {
+                if (app.getAppointmentDate().getHour() == hour) {
+                    slotAvailable = false;
+                    break;
+                }
+            }
+
+            if (slotAvailable) {
+                availableSlots.add(slot);
+            }
+        }
         return availableSlots;
     }
 }

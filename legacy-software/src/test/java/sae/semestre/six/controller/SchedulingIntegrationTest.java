@@ -50,6 +50,7 @@ public class SchedulingIntegrationTest {
     public void testScheduleAppointmentSuccess() {
         Long doctorId = 1L;
         Long patientId = 2L;
+        String roomNumber = "A202";
         LocalDateTime appointmentDate = LocalDateTime.of(2025, 5, 15, 10,0);
         String subject = new String ("New Appointment Scheduled");
         String body = new String ("You have a new appointment on " + appointmentDate);
@@ -65,10 +66,10 @@ public class SchedulingIntegrationTest {
         when(doctorDao.findById(doctorId)).thenReturn(mockDoctor);
         when(patientDao.findById(patientId)).thenReturn(mockPatient);
         when(appointmentDao.findByDoctorId(doctorId)).thenReturn(Collections.emptyList());
-        when(roomDao.findAll()).thenReturn(List.of(room));
+        when(appointmentDao.findByRoomNumber(roomNumber)).thenReturn(Collections.emptyList());
         doNothing().when(emailService).sendEmail(anyString(), anyString(), anyString());
 
-        String result = schedulingService.scheduleAppointment(doctorId, patientId, appointmentDate);
+        String result = schedulingService.scheduleAppointment(doctorId, patientId, roomNumber,appointmentDate);
 
         assertEquals("Appointment scheduled successfully", result);
         verify(emailService).sendEmail(mockDoctor.getEmail(), subject, body);
@@ -78,6 +79,7 @@ public class SchedulingIntegrationTest {
     public void testScheduleAppointment_AlreadyTaken() {
         Long doctorId = 1L;
         Long patientId = 2L;
+        String roomNumber = "A202";
         LocalDateTime appointmentDate = LocalDateTime.of(2025, 5, 15, 10,0);
 
         Doctor mockDoctor = new Doctor();
@@ -94,10 +96,10 @@ public class SchedulingIntegrationTest {
         when(doctorDao.findById(doctorId)).thenReturn(mockDoctor);
         when(patientDao.findById(patientId)).thenReturn(mockPatient);
         when(appointmentDao.findByDoctorId(doctorId)).thenReturn(List.of(existing));
+        when(appointmentDao.findByRoomNumber(roomNumber)).thenReturn(Collections.emptyList());
         when(appointmentDao.findMaxId()).thenReturn(0L);
-        when(roomDao.findAll()).thenReturn(List.of(room));
 
-        String result = schedulingService.scheduleAppointment(doctorId, patientId, appointmentDate);
+        String result = schedulingService.scheduleAppointment(doctorId, patientId, roomNumber,appointmentDate);
 
         assertEquals("Doctor is not available at this time", result);
     }
@@ -106,6 +108,7 @@ public class SchedulingIntegrationTest {
     public void testScheduleAppointment_OutOfHours() {
         Long doctorId = 1L;
         Long patientId = 2L;
+        String roomNumber = "A202";
         LocalDateTime earlyMorning = LocalDateTime.of(2025, 5, 15, 8,0); // before 9 AM
 
         Doctor mockDoctor = new Doctor();
@@ -116,8 +119,9 @@ public class SchedulingIntegrationTest {
         when(doctorDao.findById(doctorId)).thenReturn(mockDoctor);
         when(patientDao.findById(patientId)).thenReturn(mockPatient);
         when(appointmentDao.findByDoctorId(doctorId)).thenReturn(Collections.emptyList());
+        when(appointmentDao.findByRoomNumber(roomNumber)).thenReturn(Collections.emptyList());
 
-        String result = schedulingService.scheduleAppointment(doctorId, patientId, earlyMorning);
+        String result = schedulingService.scheduleAppointment(doctorId, patientId, roomNumber,earlyMorning);
 
         assertEquals("Appointments only available between 9 AM and 5 PM", result);
     }
@@ -131,7 +135,7 @@ public class SchedulingIntegrationTest {
 
         when(appointmentDao.findByDoctorId(doctorId)).thenReturn(List.of(takenSlot));
 
-        List<LocalDateTime> slots = schedulingService.getPatientAvailableSlots(doctorId, date);
+        List<LocalDateTime> slots = schedulingService.getDoctorAvailableSlots(doctorId, date);
 
         assertEquals(8, slots.size()); // from 9 to 17 = 9 slots, 1 taken
         assertFalse(slots.contains(LocalDateTime.of(2025, 5, 15, 10,0)));
