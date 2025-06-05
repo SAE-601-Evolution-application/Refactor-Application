@@ -21,7 +21,7 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class SchedulingIntegrationTest {
+public class AppointmentControllerTest {
 
     @Mock
     private AppointmentDao appointmentDao;

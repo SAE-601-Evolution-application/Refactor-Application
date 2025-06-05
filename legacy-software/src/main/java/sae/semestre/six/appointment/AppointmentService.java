@@ -34,6 +34,15 @@ public class AppointmentService {
     @Autowired
     private EmailService emailService;
 
+
+    public AppointmentService(AppointmentDao appointmentDao, DoctorDao doctorDao, PatientDao patientDao, RoomDao roomDao, EmailService emailService) {
+        this.appointmentDao = appointmentDao;
+        this.doctorDao = doctorDao;
+        this.patientDao = patientDao;
+        this.roomDao = roomDao;
+        this.emailService = emailService;
+    }
+
     public String scheduleAppointment(Long doctorId,Long patientId, String roomNumber, LocalDateTime appointmentDate){
         try {
             Doctor doctor = doctorDao.findById(doctorId);

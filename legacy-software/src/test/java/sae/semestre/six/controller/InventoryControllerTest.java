@@ -20,7 +20,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class InventoryIntegrationTest {
+public class InventoryControllerTest {
 
     private MockMvc mockMvc;
 
@@ -34,7 +34,7 @@ public class InventoryIntegrationTest {
     }
 
     @Test
-    void testProcessSupplierInvoice_success() throws Exception {
+    void testProcessSupplierInvoiceSuccess() throws Exception {
         String json = """
         {
           "details": [
@@ -61,7 +61,7 @@ public class InventoryIntegrationTest {
     }
 
     @Test
-    void testProcessSupplierInvoice_error() throws Exception {
+    void testProcessSupplierInvoiceError() throws Exception {
         mockMvc.perform(post("/inventory/supplier-invoice")
                         .contentType(APPLICATION_JSON)
                         .content("")) // contenu vide = erreur JSON
@@ -69,7 +69,7 @@ public class InventoryIntegrationTest {
     }
 
     @Test
-    void testGetLowStockItems_success() throws Exception {
+    void testGetLowStockItemsSuccess() throws Exception {
         Inventory item = new Inventory();
         item.setName("Item 1");
         item.setQuantity(1);
@@ -85,7 +85,7 @@ public class InventoryIntegrationTest {
     }
 
     @Test
-    void testReorderItems_returnsCorrectResponse() throws Exception {
+    void testReorderItemsCorrectResponse() throws Exception {
         when(inventoryService.reorderItems()).thenReturn(1);
 
         mockMvc.perform(post("/inventory/reorder"))
@@ -94,7 +94,7 @@ public class InventoryIntegrationTest {
     }
 
     @Test
-    void testReorderItems_callsServiceOnce() throws Exception {
+    void testReorderItemsCallsService() throws Exception {
         when(inventoryService.reorderItems()).thenReturn(2);
 
         mockMvc.perform(post("/inventory/reorder"))
