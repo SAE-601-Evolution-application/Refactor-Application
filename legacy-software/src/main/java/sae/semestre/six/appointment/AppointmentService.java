@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class SchedulingService {
+public class AppointmentService {
 
     @Autowired
     private AppointmentDao appointmentDao;
@@ -38,6 +38,7 @@ public class SchedulingService {
         try {
             Doctor doctor = doctorDao.findById(doctorId);
             Patient patient = patientDao.findById(patientId);
+            Room room = roomDao.findByRoomNumber(roomNumber);
 
 
             List<Appointment> doctorAppointments = appointmentDao.findByDoctorId(doctorId);
@@ -48,7 +49,7 @@ public class SchedulingService {
                 }
             }
 
-            List<Appointment> roomAppointments = appointmentDao.findByRoomNumber(roomNumber);
+            List<Appointment> roomAppointments = appointmentDao.findByRoomId(room.getId());
             for (Appointment existing : roomAppointments){
                 if (existing.getAppointmentDate().equals(appointmentDate)) {
                     return "The room is not available at this time";
@@ -65,7 +66,7 @@ public class SchedulingService {
             newAppointment.setPatient(patient);
             newAppointment.setRoomNumber(roomNumber);
             newAppointment.setAppointmentNumber(setAppointmentNumber());
-
+            newAppointment.setRoom(room);
             newAppointment.setAppointmentDate(appointmentDate);
 
             emailService.sendAppointmentMail(patient.getEmail(),doctor.getEmail(),
@@ -105,13 +106,12 @@ public class SchedulingService {
         return availableSlots;
     }
 
-    public List<LocalDateTime> getRoomAvailableSlots(String roomNumber, LocalDate date){
+    public List<LocalDateTime> getRoomAvailableSlots(Long roomNumber, LocalDate date){
         List<LocalDateTime> availableSlots = new ArrayList<>();
         for (int hour = 9; hour <= 17; hour++) {
             LocalDateTime slot = LocalDateTime.of(date, LocalTime.of(hour,0));
             boolean slotAvailable = true;
-            List<Appointment> s = appointmentDao.findByRoomNumber(roomNumber);
-            for (Appointment app : appointmentDao.findByRoomNumber(roomNumber)) {
+            for (Appointment app : appointmentDao.findByRoomId(roomNumber)) {
                 if (app.getAppointmentDate().getHour() == hour) {
                     slotAvailable = false;
                     break;

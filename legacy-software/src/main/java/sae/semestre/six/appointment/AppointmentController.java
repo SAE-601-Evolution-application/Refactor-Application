@@ -11,10 +11,10 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/scheduling")
-public class SchedulingController {
+public class AppointmentController {
 
     @Autowired
-    private SchedulingService schedulingService;
+    private AppointmentService appointmentService;
 
     @PostMapping("/appointment")
     public ResponseEntity<String> scheduleAppointment(
@@ -22,20 +22,20 @@ public class SchedulingController {
             @RequestParam Long patientId,
             @RequestParam String roomNumber,
             @RequestParam LocalDateTime appointmentDate) {
-        String response = schedulingService.scheduleAppointment(doctorId, patientId, roomNumber, appointmentDate);
+        String response = appointmentService.scheduleAppointment(doctorId, patientId, roomNumber, appointmentDate);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
     
     @GetMapping("/available-slots")
     public ResponseEntity<List<LocalDateTime>> getDoctorAvailableSlots(@RequestParam Long doctorId, @RequestParam LocalDate date) {
-        List<LocalDateTime> slots = schedulingService.getDoctorAvailableSlots(doctorId,date);
+        List<LocalDateTime> slots = appointmentService.getDoctorAvailableSlots(doctorId,date);
         return new ResponseEntity<>(slots,HttpStatus.OK);
     }
 
     @GetMapping("/room/available-slots")
-    public ResponseEntity<List<LocalDateTime>> getRoomAvailableSlots(@RequestParam String roomNumber, @RequestParam LocalDate date) {
-        List<LocalDateTime> slots = schedulingService.getRoomAvailableSlots(roomNumber,date);
+    public ResponseEntity<List<LocalDateTime>> getRoomAvailableSlots(@RequestParam Long roomNumber, @RequestParam LocalDate date) {
+        List<LocalDateTime> slots = appointmentService.getRoomAvailableSlots(roomNumber,date);
         return new ResponseEntity<>(slots, HttpStatus.OK);
     }
 } 

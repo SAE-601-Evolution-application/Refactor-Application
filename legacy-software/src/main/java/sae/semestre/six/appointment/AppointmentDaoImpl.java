@@ -30,9 +30,9 @@ public class AppointmentDaoImpl extends AbstractHibernateDao<Appointment, Long> 
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<Appointment> findByRoomNumber(String roomNumber) {
+    public List<Appointment> findByRoomId(Long roomNumber) {
         return getEntityManager()
-                .createQuery("FROM Appointment WHERE room.roomNumber = :roomNumber")
+                .createQuery("FROM Appointment WHERE room.id = :roomNumber")
                 .setParameter("roomNumber", roomNumber)
                 .getResultList();
     }
