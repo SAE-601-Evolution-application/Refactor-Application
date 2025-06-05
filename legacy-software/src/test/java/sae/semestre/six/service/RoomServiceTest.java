@@ -28,7 +28,7 @@ public class RoomServiceTest {
     }
 
     @Test
-    void assignRoom_success() {
+    void assignRoomSuccess() {
         Room room = new Room();
         room.setRoomNumber("R101");
         room.setCapacity(2);
@@ -55,7 +55,7 @@ public class RoomServiceTest {
     }
 
     @Test
-    void assignRoom_roomNotFound_throwsException() {
+    void assignRoomRoomNotFound() {
         when(roomDao.findByRoomNumber("R999")).thenReturn(null);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -65,7 +65,7 @@ public class RoomServiceTest {
     }
 
     @Test
-    void assignRoom_appointmentNotFound_throwsException() {
+    void assignRoomAppointmentNotFound() {
         Room room = new Room();
         room.setRoomNumber("R101");
         when(roomDao.findByRoomNumber("R101")).thenReturn(room);
@@ -78,7 +78,7 @@ public class RoomServiceTest {
     }
 
     @Test
-    void assignRoom_surgeryRoomButDoctorNotSurgeon_throwsException() {
+    void assignRoomSurgeryRoomButDoctorNotSurgeon() {
         Room room = new Room();
         room.setRoomNumber("R202");
         room.setType("SURGERY");
@@ -99,7 +99,7 @@ public class RoomServiceTest {
     }
 
     @Test
-    void assignRoom_roomFull_throwsException() {
+    void assignRoomRoomFull() {
         Room room = new Room();
         room.setRoomNumber("R103");
         room.setCapacity(2);
@@ -122,7 +122,7 @@ public class RoomServiceTest {
     }
 
     @Test
-    void getRoomAvailability_success() {
+    void getRoomAvailabilitySuccess() {
         Room room = new Room();
         room.setRoomNumber("R200");
         room.setCapacity(3);
@@ -140,7 +140,7 @@ public class RoomServiceTest {
     }
 
     @Test
-    void getRoomAvailability_roomNotFound_throwsException() {
+    void getRoomAvailabilityRoomNotFound() {
         when(roomDao.findByRoomNumber("UNKNOWN")).thenReturn(null);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
