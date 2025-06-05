@@ -19,7 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class BillingIntegrationTest {
+public class BillingControllerTest {
 
     private MockMvc mockMvc;
 
@@ -35,7 +35,7 @@ public class BillingIntegrationTest {
     }
 
     @Test
-    void testProcessBill_success() throws Exception {
+    void testProcessBillSuccess() throws Exception {
         mockMvc.perform(post("/billing/process")
                         .param("patientId", "123")
                         .param("doctorId", "456")
@@ -45,7 +45,7 @@ public class BillingIntegrationTest {
     }
 
     @Test
-    void testCalculateInsurance_withValidInsurance() throws Exception {
+    void testCalculateInsuranceWithValidInsurance() throws Exception {
         Insurance mockInsurance = mock(Insurance.class);
         when(insuranceRepository.findInsuranceByPatientId(1)).thenReturn(mockInsurance);
         when(mockInsurance.isValid()).thenReturn(true);

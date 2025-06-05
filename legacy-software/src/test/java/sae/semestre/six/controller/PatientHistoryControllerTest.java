@@ -6,9 +6,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import sae.semestre.six.inventory.Inventory;
-import sae.semestre.six.inventory.InventoryController;
-import sae.semestre.six.inventory.InventoryService;
 import sae.semestre.six.patientHistory.PatientHistory;
 import sae.semestre.six.patientHistory.PatientHistoryController;
 import sae.semestre.six.patientHistory.PatientHistoryService;
@@ -23,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class PatientHistoryIntegrationTest {
+public class PatientHistoryControllerTest {
 
     private MockMvc mockMvc;
 
@@ -37,7 +34,7 @@ public class PatientHistoryIntegrationTest {
     }
 
     @Test
-    void testSearchHistory_returnsResults() throws Exception {
+    void testSearchHistoryReturnsResults() throws Exception {
         PatientHistory history = new PatientHistory();
         history.setDiagnosis("Consultation");
         history.setVisitDate(LocalDateTime.now());
@@ -55,7 +52,7 @@ public class PatientHistoryIntegrationTest {
     }
 
     @Test
-    void testSearchHistory_returnsEmptyList() throws Exception {
+    void testSearchHistoryReturnsEmptyList() throws Exception {
         when(patientHistoryService.searchHistory(anyString(), any(), any()))
                 .thenReturn(List.of());
 
@@ -69,7 +66,7 @@ public class PatientHistoryIntegrationTest {
     }
 
     @Test
-    void testSearchHistory_returnsBadRequestOnInvalidDate() throws Exception {
+    void testSearchHistoryReturnsBadRequestOnInvalidDate() throws Exception {
         mockMvc.perform(get("/patient-history/search")
                         .param("keyword", "consultation")
                         .param("startDate", "not-a-date")
@@ -78,7 +75,7 @@ public class PatientHistoryIntegrationTest {
     }
 
     @Test
-    void testGetPatientSummary_returnsSummary() throws Exception {
+    void testGetPatientSummaryReturnsSummary() throws Exception {
         Long patientId = 1L;
         Map<String, Object> summaryMap = Map.of(
                 "totalVisits", (Object) 5,
